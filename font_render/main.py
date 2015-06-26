@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import kivy
 kivy.require('1.9.0')
 
@@ -9,7 +11,11 @@ from kivy.base import EventLoop
 from kivy.core.image import Image
 from kivy.graphics import Mesh
 from kivy.graphics.instructions import RenderContext
+from kivy.logger import Logger
 from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.label import Label
+from kivy.uix.scatter import Scatter
 
 
 UVMapping = namedtuple('UVMapping', 'u0 v0 u1 v1 su sv')
@@ -29,7 +35,7 @@ def load_font(font_file, font_size):
     """ Returns the font as a texture and a mapping of its values.
 
     """
-    image = Image(font_file)
+    image = Image(font_file).texture
     tex_w, tex_h = image.size
     font_w, font_h = font_size
 
@@ -46,17 +52,19 @@ def load_font(font_file, font_size):
         )
         char_ord += 1
 
-    return image.texture, uvmap
+    return image, uvmap
 
 
-class FontRender(Widget):
+class Con(Widget):
+
     def __init__(self, **kwargs):
-        super(FontRender, self).__init__(**kwargs)
+        super(Con, self).__init__(**kwargs)
         self.canvas = RenderContext(use_parent_projection=True)
         self.canvas.shader.source = 'font_render.glsl'
 
         self.scale = 1
         self.font_size = (8, 12)
+
         self.texture, self.uvmap = load_font('terminal8x12_gs_ro.png',
                                              self.font_size)
 
@@ -69,7 +77,7 @@ class FontRender(Widget):
         )
 
     def render(self):
-        ff_vertices, ff_indices = self.render_font_file()
+        ff_vertices, ff_indices = self.render_font_file(color=(1, 0.5, 1))
         msg_vertices, msg_indices = self.render_text(
             'Awesome font rendering from a sprite sheet! ;)',
             pos=(5, 200),
@@ -138,13 +146,30 @@ class FontRender(Widget):
         return vertices, indices
 
 
+class FontRender(FloatLayout):
+
+    def __init__(self, **kwargs):
+        super(FontRender, self).__init__(**kwargs)
+
+        self.add_widget(Scatter(id='scat'))
+        self.scat = self.get_widget_by_id('scat')
+
+        self.scat.add_widget(Con(id='con'))
+        self.scat.add_widget(Label(text='drag me'))
+
+        self.con = self.get_widget_by_id('con', restrict=False)
+        self.con.render()
+
+    def get_widget_by_id(self, widget_id, restrict=True, loopback=False):
+        for obj in self.walk(restrict=restrict, loopback=loopback):
+            if obj.id == widget_id:
+                return obj
+
+
 class FontRenderApp(App):
     def build(self):
         EventLoop.ensure_window()
         return FontRender()
-
-    def on_start(self):
-        self.root.render()
 
 
 def main():

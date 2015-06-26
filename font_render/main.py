@@ -11,8 +11,6 @@ if sys.version_info.major < 3:
 from kivy.config import Config
 from kivy.logger import Logger
 
-from font_render.app import FontRenderApp
-
 
 def get_exception(full_tb=False):
     exc_type, exc_obj, tb = sys.exc_info()
@@ -34,6 +32,8 @@ def get_exception(full_tb=False):
 
 
 def main():
+    from font_render.app import FontRenderApp
+
     Config.set('kivy', 'log_level', 'debug')
     Config.write()
 

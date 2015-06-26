@@ -18,9 +18,9 @@ from kivy.core.image import Image
 from kivy.graphics import Mesh
 from kivy.graphics.instructions import RenderContext
 from kivy.logger import Logger
+from kivy.properties import ObjectProperty
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.label import Label
 from kivy.uix.scatter import Scatter
 
 
@@ -61,7 +61,7 @@ def load_font(font_file, font_size):
     return image, uvmap
 
 
-class Con(Widget):
+class Con(Scatter):
 
     def __init__(self, **kwargs):
         super(Con, self).__init__(**kwargs)
@@ -81,6 +81,8 @@ class Con(Widget):
             (b'vTexCoords0', 2, 'float'),
             (b'vColor', 3, 'float'),
         )
+
+        self.render()
 
     def render(self):
         ff_vertices, ff_indices = self.render_font_file(color=(1, 0.5, 1))
@@ -153,23 +155,7 @@ class Con(Widget):
 
 
 class FontRender(FloatLayout):
-
-    def __init__(self, **kwargs):
-        super(FontRender, self).__init__(**kwargs)
-
-        self.add_widget(Scatter(id='scat'))
-        self.scat = self.get_widget_by_id('scat')
-
-        self.scat.add_widget(Con(id='con'))
-        self.scat.add_widget(Label(text='drag me'))
-
-        self.con = self.get_widget_by_id('con', restrict=False)
-        self.con.render()
-
-    def get_widget_by_id(self, widget_id, restrict=True, loopback=False):
-        for obj in self.walk(restrict=restrict, loopback=loopback):
-            if obj.id == widget_id:
-                return obj
+    pass
 
 
 class FontRenderApp(App):
